@@ -1,14 +1,35 @@
 ---
+- hosts: kubernetes-master, kubernetes-worker
+
+  pre_tasks:
+
+    # kubeadm fails if swap is enabled
+    - name: Check if swap enabled
+      become: yes
+      command: swapon --noheadings --show=name
+      register: _swap_results
+      check_mode: no
+      changed_when: False
+
+    - name: Disable swap
+      become: yes
+      command: swapoff {{ item }}
+      with_items: "{{ _swap_results.stdout_lines }}"
+      when: _swap_results.stdout_lines | length > 0
+
+  roles:
+    - role: openmicroscopy.docker
+      docker_install_upstream: False
+
 - hosts: kubernetes-master
   roles:
-    - role: kubernetes
+    - role: ansible-role-kubernetes-kubeadm
       kubernetes_role: master
       kubernetes_advertise_address: "{{ hostvars['kubernetes-master'][molecule_ansible_iface].ipv4.address }}"
 
 - hosts: kubernetes-worker
   roles:
-    - role: kubernetes
+    - role: ansible-role-kubernetes-kubeadm
       kubernetes_role: worker
       kubernetes_token: "{{ hostvars['kubernetes-master'].kubernetes_token }}"
-      #molecule_ansible_iface: ansible_eth1
       kubernetes_master: "{{ hostvars['kubernetes-master'][molecule_ansible_iface].ipv4.address }}:6443"

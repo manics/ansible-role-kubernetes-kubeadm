@@ -6,7 +6,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
 
 
 @pytest.mark.parametrize('name', [
-    'docker'
+    'docker',
     'kubelet'
 ])
 def test_service_running_and_enabled(Service, name):

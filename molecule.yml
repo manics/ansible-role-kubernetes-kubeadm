@@ -14,8 +14,8 @@ vagrant:
     - name: virtualbox
       type: virtualbox
       options:
-        memory: 512
-        cpus: 1
+        memory: 2048
+        cpus: 2
   instances:
     - name: kubernetes-master
       interfaces:
@@ -35,13 +35,7 @@ vagrant:
 # docker in molecule is not supported by this role
 
 ansible:
-  diff: True
-  #verbose: True
   group_vars:
-    docker-hosts:
-      # This should allow docker-in-docker to work
-      docker_storage_driver: vfs
-      molecule_ansible_iface: ansible_eth0
     vagrant-hosts:
       molecule_ansible_iface: ansible_eth1
 

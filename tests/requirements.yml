@@ -1,2 +1,5 @@
 - src: openmicroscopy.docker
+  version: 2.2.0
+
 - src: openmicroscopy.selinux-utils
+  version: 1.0.3

@@ -1,0 +1,24 @@
+# Since this is a single-node cluster allow scheduling of pods on master node
+- include: playbook.yml
+
+- hosts: kubernetes-master
+  tasks:
+
+    - name: check master taints
+      become: yes
+      command: >
+        {% raw %}
+        kubectl get node kubernetes-master -o go-template='{{.spec.taints}}'
+        {% endraw %}
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: _kubectl_taint
+      check_mode: no
+      changed_when: False
+
+    - name: allow scheduling on master
+      become: yes
+      command: kubectl taint nodes kubernetes-master node-role.kubernetes.io/master-
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      when: _kubectl_taint.stdout != '<no value>'
